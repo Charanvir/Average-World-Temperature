@@ -2,10 +2,9 @@ import requests
 import selectorlib
 from datetime import datetime
 
-URL = "https://programmer100.pythonanywhere.com/"
 
-
-def scrape(url):
+def scrape():
+    url = "https://programmer100.pythonanywhere.com/"
     response = requests.get(url)
     source = response.text
     return source
