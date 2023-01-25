@@ -1,7 +1,9 @@
 import requests
 import selectorlib
 from datetime import datetime
+import sqlite3
 
+connection = sqlite3.connect("temperature_data.db")
 
 def scrape():
     url = "https://programmer100.pythonanywhere.com/"
@@ -17,27 +19,24 @@ def extract(source):
 
 
 def store(extracted):
-    with open ("temperature_data.txt", "a") as file:
-        now = datetime.now().strftime("%y-%m-%d-%H-%M-%S")
-        file.write(f"{now},{extracted}" + "\n")
+    now = datetime.now().strftime("%y-%m-%d-%H-%M-%S")
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO temperature_data VALUES(?,?)", (now, extracted))
+    connection.commit()
 
 
 def read():
-    with open("temperature_data.txt", "r") as file:
-        content = file.readlines()
-        content = [cont.strip("\n") for cont in content]
-        dates = []
-        temperatures = []
-        for cont in content[1:]:
-            date = cont.split(",")[0]
-            temperature = cont.split(",")[1]
-            dates.append(date)
-            temperatures.append(temperature)
-    return {"dates": dates, "temperatures": temperatures}
+    cursor = connection.cursor()
+    dates = cursor.execute("SELECT date FROM temperature_data")
+    temperatures = cursor.execute("SELECT temperature FROM temperature_data")
+    dates = dates.fetchall()
+    temperatures = temperatures.fetchmany()
+    return [dates, temperatures]
 
 
 if __name__ == "__main__":
-    source = scrape(URL)
+    url = "https://programmer100.pythonanywhere.com/"
+    source = scrape()
     extracted = extract(source)
     store(extracted)
-    print(read())
+    # print(read())

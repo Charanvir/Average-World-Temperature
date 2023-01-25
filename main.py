@@ -1,14 +1,20 @@
 import streamlit as st
 import plotly.express as px
-from functions import scrape, extract, read, store
+import sqlite3
+
+connection = sqlite3.connect("temperature_data.db")
 
 st.title("Average World Temperature")
 
-source = scrape()
-extracted = extract(source)
-store(extracted)
-values = read()
-dates = values["dates"]
-temperatures = values["temperatures"]
-figure = px.line(x=dates, y=temperatures, labels={"x": "Date", "y": "Temperature"})
+cursor = connection.cursor()
+cursor.execute("SELECT date FROM temperature_data")
+date = cursor.fetchall()
+date = [item[0] for item in date]
+
+cursor.execute("SELECT temperature FROM temperature_data")
+temperature = cursor.fetchall()
+temperature = [item[0] for item in temperature]
+
+figure = px.line(x=date, y=temperature, labels={"x": "Date", "y": "Temperature (C)"})
+
 st.plotly_chart(figure)
