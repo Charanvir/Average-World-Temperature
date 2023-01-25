@@ -1,6 +1,11 @@
 import streamlit as st
 import plotly.express as px
 import sqlite3
+from functions import scrape, extract, store
+
+source = scrape()
+extracted = extract(source)
+store(extracted)
 
 connection = sqlite3.connect("temperature_data.db")
 
